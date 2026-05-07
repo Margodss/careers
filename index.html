@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DS Systems — Careers</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=JetBrains+Mono:wght@400;500&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  /* palette from damnsafe.systems */
+  --paper:    #f4f3ee;            /* off-white background */
+  --ink:      #0a0f1c;            /* near-black */
+  --ink-2:    rgba(10,15,28,0.65);
+  --ink-3:    rgba(10,15,28,0.4);
+  --line:     rgba(10,15,28,0.12);
+  --line-2:   rgba(10,15,28,0.3);
+
+  --blue:     #1d33ff;            /* electric blue accent block */
+  --lav:      #cdd2f0;            /* lavender accent block */
+  --dark:     #0a0f1c;            /* dark navy block */
+  --w:        #ffffff;
+
+  --display: 'Archivo Black', sans-serif;
+  --mono:    'JetBrains Mono', monospace;
+  --body:    'Inter', sans-serif;
+  --pad: clamp(1.25rem, 4vw, 4rem);
+}
+
+html{ scroll-behavior:smooth }
+body{
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--body);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+body::before{
+  content:''; position:fixed; inset:0;
+  background-image: radial-gradient(rgba(10,15,28,0.07) 1px, transparent 1px);
+  background-size: 24px 24px;
+  pointer-events:none; z-index:0;
+}
+
+.page{ display:none; position:relative; z-index:1 }
+.page.active{ display:block }
+
+/* ── FRAMED BLOCK (signature damnsafe element) ── */
+/* Outer frame with bracket corners and dot pins at each corner */
+.frame{
+  position:relative;
+  border: 1px solid;
+  margin: 14px;
+}
+.frame > .pin{
+  position:absolute; width:9px; height:9px;
+  border-radius:50%; background:currentColor;
+}
+.frame > .pin.tl{ top:-5px; left:-5px }
+.frame > .pin.tr{ top:-5px; right:-5px }
+.frame > .pin.bl{ bottom:-5px; left:-5px }
+.frame > .pin.br{ bottom:-5px; right:-5px }
+
+/* dotted vertical lines between pins */
+.frame > .line-l, .frame > .line-r{
+  position:absolute; top:9px; bottom:9px; width:1px;
+  background-image: linear-gradient(currentColor 50%, transparent 50%);
+  background-size: 1px 6px;
+  opacity:.55;
+}
+.frame > .line-l{ left:-1px }
+.frame > .line-r{ right:-1px }
+.frame > .line-t, .frame > .line-b{
+  position:absolute; left:9px; right:9px; height:1px;
+  background-image: linear-gradient(90deg, currentColor 50%, transparent 50%);
+  background-size: 6px 1px;
+  opacity:.55;
+}
+.frame > .line-t{ top:-1px }
+.frame > .line-b{ bottom:-1px }
+
+/* color helpers */
+.f-blue{ color: var(--w); background: var(--blue) }
+.f-blue.frame{ border-color: rgba(255,255,255,0.5) }
+.f-blue .pin{ background: var(--w) }
+.f-lav{  color: var(--ink); background: var(--lav) }
+.f-lav.frame{ border-color: rgba(10,15,28,0.4) }
+.f-lav .pin{ background: var(--ink) }
+.f-dark{ color: var(--w); background: var(--dark) }
+.f-dark.frame{ border-color: rgba(255,255,255,0.4) }
+.f-dark .pin{ background: var(--w) }
+.f-paper{ color: var(--ink); background: var(--paper) }
+.f-paper.frame{ border-color: rgba(10,15,28,0.4) }
+.f-paper .pin{ background: var(--ink) }
+
+/* ─── NAV ─── */
+nav{
+  position:sticky; top:0; z-index:200;
+  display:flex; align-items:center; justify-content:space-between;
+  padding: 1.1rem var(--pad);
+  background: rgba(244,243,238,0.95);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--line);
+}
+.nav-logo{ cursor:pointer; background:none; border:none; line-height:0; padding:0 }
+.nav-logo img{ height:24px }
+.nav-right{ display:flex; align-items:center; gap:1.5rem }
+.nav-tag{ font-family:var(--mono); font-size:11px; color:var(--ink-2); letter-spacing:.1em }
+.nav-back{
+  display:none; align-items:center; gap:6px;
+  font-family:var(--mono); font-size:11px; letter-spacing:.12em;
+  color:var(--ink-2); cursor:pointer; border:none; background:none;
+  text-transform:uppercase;
+}
+.nav-back:hover{ color:var(--ink) }
+.nav-back.vis{ display:flex }
+
+/* ─── BANNER ─── */
+.banner img{ width:100%; display:block }
+
+/* ─── HOME HERO ─── */
+.home-hero{
+  padding: clamp(4rem,9vw,7rem) var(--pad) clamp(2rem,5vw,4rem);
+  border-bottom: 1px solid var(--line);
+  animation: fadeUp .5s ease both;
+}
+.home-kicker{
+  font-family: var(--mono); font-size: 11px;
+  letter-spacing: .18em; color: var(--ink-2);
+  margin-bottom: 1.5rem; text-transform: uppercase;
+}
+.home-h1{
+  font-family: var(--display);
+  font-size: clamp(3rem, 9vw, 8rem);
+  line-height: 0.95;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+  margin-bottom: 2rem;
+  max-width: 1200px;
+}
+.home-h1 .br-tag{
+  font-family: var(--mono);
+  font-weight: 400;
+  font-size: 0.32em;
+  vertical-align: 0.6em;
+  letter-spacing: .05em;
+  opacity: 0.65;
+  text-transform: lowercase;
+}
+.home-sub{
+  font-size: clamp(15px, 1.7vw, 18px);
+  color: var(--ink-2);
+  max-width: 600px;
+  line-height: 1.7;
+}
+
+/* ─── KEY METRICS BLOCK (2 framed blocks side-by-side) ─── */
+.metrics-grid{
+  padding: clamp(2rem,5vw,4rem) var(--pad);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+@media(max-width:780px){ .metrics-grid{ grid-template-columns:1fr } }
+
+.metric-block{ padding: clamp(1.5rem,3vw,2.5rem) }
+.metric-kicker{
+  font-family: var(--mono);
+  font-size: 11px; letter-spacing: .15em;
+  text-transform: uppercase;
+  margin-bottom: 1.5rem;
+  opacity: 0.85;
+}
+.metric-h{
+  font-family: var(--display);
+  font-size: clamp(2rem, 4.5vw, 3.5rem);
+  line-height: 0.95;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+  margin-bottom: clamp(2rem,5vw,3.5rem);
+}
+.metric-stats{ display:flex; gap:clamp(1.5rem,4vw,3rem); flex-wrap:wrap }
+.stat-num{
+  font-family: var(--display);
+  font-size: clamp(2.2rem,5vw,3.5rem);
+  line-height: 1;
+  margin-bottom: 8px;
+  letter-spacing: -0.02em;
+}
+.stat-label{
+  font-size: 13px;
+  line-height: 1.4;
+  max-width: 140px;
+  opacity: 0.85;
+}
+
+/* ─── VACANCY LIST ─── */
+.vac-list{ padding: clamp(3rem,6vw,5rem) var(--pad) clamp(4rem,8vw,6rem) }
+.vlist-head{
+  display:flex; align-items:flex-end; justify-content:space-between;
+  margin-bottom: 2.5rem; gap:1rem; flex-wrap:wrap;
+}
+.vlist-h{
+  font-family: var(--display);
+  font-size: clamp(2rem,5vw,3.5rem);
+  letter-spacing:-0.01em;
+  text-transform: uppercase;
+}
+.vlist-count{ font-family: var(--mono); font-size: 11px; color: var(--ink-2); letter-spacing: .14em; padding-bottom:.4rem }
+
+.vac-row{
+  display: flex; align-items: center;
+  border-top: 1px solid var(--line);
+  padding: 2rem 0;
+  cursor: pointer;
+  gap: 2rem;
+  transition: background .2s, padding .2s;
+}
+.vac-row:last-of-type{ border-bottom: 1px solid var(--line) }
+.vac-row:hover{
+  background: rgba(10,15,28,0.025);
+  padding-left: 12px;
+  padding-right: 12px;
+}
+.vac-row:hover .vr-arrow{ transform: translateX(8px) }
+
+.vr-num{
+  font-family: var(--mono); font-size: 11px;
+  color: var(--ink-3); letter-spacing: .15em;
+  flex-shrink: 0; width: 3rem;
+}
+.vr-body{ flex:1 }
+.vr-name{
+  font-family: var(--display);
+  font-size: clamp(1.5rem, 3.5vw, 2.5rem);
+  letter-spacing: -0.01em; line-height: 1;
+  text-transform: uppercase;
+  margin-bottom: .8rem;
+}
+.vr-tags{ display:flex; flex-wrap:wrap; gap:6px }
+.tag{
+  font-family: var(--mono); font-size: 10px;
+  letter-spacing: .05em; padding: 4px 10px;
+  border: 1px solid var(--line-2);
+  color: var(--ink); background: transparent;
+  border-radius: 0;
+}
+.tag-hot{
+  background: var(--blue); color: var(--w);
+  border-color: var(--blue);
+}
+.vr-arrow{
+  font-family: var(--display); font-size: 24px;
+  color: var(--ink); flex-shrink: 0;
+  transition: transform .2s;
+}
+
+/* ─── VACANCY PAGE ─── */
+.vp-top{
+  padding: clamp(3rem,7vw,5rem) var(--pad) 0;
+  border-bottom: 1px solid var(--line);
+  animation: fadeUp .45s ease both;
+}
+.vp-kicker{
+  font-family: var(--mono); font-size: 11px;
+  letter-spacing: .18em; text-transform: uppercase;
+  color: var(--ink-2); margin-bottom: 1.25rem;
+}
+.vp-h1{
+  font-family: var(--display);
+  font-size: clamp(3rem, 9vw, 7rem);
+  line-height: 0.92; letter-spacing: -0.02em;
+  text-transform: uppercase;
+  margin-bottom: 2rem;
+}
+.vp-meta{ display:flex; flex-wrap:wrap; gap:7px; padding-bottom: 2.5rem }
+
+/* benefits row — like "what you get" on the real site */
+.benefits{
+  padding: clamp(2.5rem,5vw,4rem) var(--pad);
+  background: var(--lav);
+  border-bottom: 1px solid var(--line);
+}
+.benefits-grid{
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 2rem 3rem;
+}
+.benefit-num{
+  font-family: var(--display); font-size: 2rem;
+  line-height: 1; margin-bottom: 0.5rem;
+  letter-spacing: -0.02em;
+}
+.benefit-title{
+  font-family: var(--mono); font-size: 11px;
+  font-weight: 500; letter-spacing: .1em;
+  text-transform: uppercase; margin-bottom: .5rem;
+}
+.benefit-desc{ font-size: 13px; color: var(--ink-2); line-height: 1.5 }
+
+/* two-col content */
+.vp-grid{
+  display: grid; grid-template-columns: 1fr 1fr; gap: 0;
+  border-bottom: 1px solid var(--line);
+}
+@media(max-width:780px){ .vp-grid{ grid-template-columns: 1fr } }
+
+.vp-col{
+  padding: clamp(2.5rem,5vw,4rem) var(--pad);
+  border-right: 1px solid var(--line);
+}
+.vp-col:last-child{ border-right: none }
+@media(max-width:780px){
+  .vp-col{ border-right: none; border-bottom: 1px solid var(--line) }
+  .vp-col:last-child{ border-bottom: none }
+}
+
+.vp-block{ margin-bottom: 2.5rem }
+.vp-block:last-child{ margin-bottom: 0 }
+.vp-block-title{
+  font-family: var(--display);
+  font-size: 18px;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  color: var(--ink);
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid var(--ink);
+}
+.vp-text{
+  font-size: 16px; color: var(--ink);
+  line-height: 1.85; opacity: 0.85;
+}
+.vp-list{ list-style: none; counter-reset: item;
+  display: flex; flex-direction: column; gap: 0.8rem;
+}
+.vp-list li{
+  font-size: 15px; color: var(--ink);
+  padding-left: 2.5rem; position: relative;
+  line-height: 1.7; counter-increment: item;
+  opacity: 0.85;
+}
+.vp-list li::before{
+  content: counter(item, decimal-leading-zero);
+  position: absolute; left: 0; top: 0.15em;
+  font-family: var(--display); font-size: 13px;
+  color: var(--ink); letter-spacing: 0;
+}
+.vp-list li strong{ color: var(--ink); font-weight: 600 }
+.stack-row{ display:flex; flex-wrap:wrap; gap:6px }
+
+/* ─── APPLY (electric blue block, like CTA on the real site) ─── */
+.apply-wrap{ padding: clamp(2.5rem,5vw,4rem) var(--pad) }
+
+.apply-content{
+  padding: clamp(3rem,6vw,5rem) clamp(1.5rem,3vw,3rem);
+  text-align: center;
+}
+.apply-kicker{
+  font-family: var(--mono); font-size: 11px;
+  letter-spacing: .2em; text-transform: uppercase;
+  margin-bottom: 1.5rem; opacity: 0.85;
+}
+.apply-h{
+  font-family: var(--display);
+  font-size: clamp(2.5rem, 8vw, 5.5rem);
+  line-height: 0.92; letter-spacing: -0.02em;
+  text-transform: uppercase;
+  margin-bottom: 1.5rem;
+  max-width: 800px; margin-left:auto; margin-right:auto;
+}
+.apply-sub{
+  font-size: 16px; opacity: 0.9;
+  margin-bottom: 2.5rem; line-height: 1.6;
+  max-width: 540px; margin-left:auto; margin-right:auto;
+}
+.apply-btn{
+  display: inline-flex; align-items: center; gap: 14px;
+  padding: 22px 56px;
+  background: var(--w); color: var(--blue);
+  font-family: var(--body); font-size: 17px;
+  font-weight: 700; letter-spacing: .04em;
+  text-transform: uppercase; text-decoration: none;
+  border: 2px solid var(--w);
+  transition: background .15s, color .15s, transform .12s;
+}
+.apply-btn:hover{ background: transparent; color: var(--w); transform: translateY(-2px) }
+.apply-btn::after{ content:'→'; font-size: 22px; font-weight: 400 }
+.apply-recruiter{
+  margin-top: 1.5rem;
+  font-family: var(--mono); font-size: 11px;
+  letter-spacing: .06em;
+  opacity: 0.85;
+}
+.apply-recruiter a{ color: inherit; text-decoration: underline }
+
+/* ─── FOOTER ─── */
+footer{
+  border-top: 1px solid var(--line);
+  padding: 1.75rem var(--pad);
+  display: flex; justify-content: space-between;
+  align-items: center; flex-wrap: wrap; gap: 1rem;
+}
+.fl{ font-family: var(--mono); font-size: 12px; color: var(--ink); letter-spacing: .08em }
+.fr{ font-family: var(--mono); font-size: 11px; color: var(--ink-3) }
+
+@keyframes fadeUp{
+  from{opacity:0;transform:translateY(20px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+@media(max-width:600px){
+  .vac-row{ padding: 1.5rem 0 }
+  .vac-row:hover{ padding-left: 6px; padding-right: 6px }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <button class="nav-logo" onclick="showHome()" aria-label="DS Systems">
+    <img src="https://www.damnsafe.systems/icons/logo.svg" alt="DS Systems">
+  </button>
+  <div class="nav-right">
+    <button class="nav-back" id="backBtn" onclick="showHome()">← CAREERS</button>
+    <span class="nav-tag">&lt;/CAREERS&gt;</span>
+  </div>
+</nav>
+
+<!-- ════════════════ HOME ════════════════ -->
+<div class="page active" id="page-home">
+
+  <div class="banner" style="position:relative;z-index:1">
+    <img src="banner.jpg" alt="We Develop Damn Safe Systems">
+  </div>
+
+  <section class="home-hero">
+    <div class="home-kicker">Open positions</div>
+    <h1 class="home-h1">
+      JOIN <span class="br-tag">&lt;/team&gt;</span><br>
+      DAMN GOOD<br>
+      ENGINEERS
+    </h1>
+    <p class="home-sub">
+      Мы строим высоконагруженную финтех-платформу для защиты транзакций в реальном времени.
+      1M+ daily transactions, &lt;1 sec scoring time, agentic-разработка.
+    </p>
+  </section>
+
+  <!-- TWO METRIC BLOCKS LIKE THE REAL SITE -->
+  <div class="metrics-grid">
+
+    <div class="frame f-blue metric-block">
+      <span class="pin tl"></span><span class="pin tr"></span>
+      <span class="pin bl"></span><span class="pin br"></span>
+      <span class="line-l"></span><span class="line-r"></span>
+      <span class="line-t"></span><span class="line-b"></span>
+      <div class="metric-kicker">REAL-TIME ANTIFRAUD</div>
+      <h2 class="metric-h">1M+ DAILY<br>CHECKS ON LIVE<br>TRAFFIC</h2>
+      <div class="metric-stats">
+        <div>
+          <div class="stat-num">&lt;1S</div>
+          <div class="stat-label">scoring time per transaction</div>
+        </div>
+        <div>
+          <div class="stat-num">X10</div>
+          <div class="stat-label">revenue growth through fraud prevention</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="frame f-lav metric-block">
+      <span class="pin tl"></span><span class="pin tr"></span>
+      <span class="pin bl"></span><span class="pin br"></span>
+      <span class="line-l"></span><span class="line-r"></span>
+      <span class="line-t"></span><span class="line-b"></span>
+      <div class="metric-kicker">WHY WE'RE HIRING</div>
+      <h2 class="metric-h">SCALING FROM<br>X10 TO X100</h2>
+      <div class="metric-stats">
+        <div>
+          <div class="stat-num">28</div>
+          <div class="stat-label">paid vacation days per year</div>
+        </div>
+        <div>
+          <div class="stat-num">AI</div>
+          <div class="stat-label">premium subscriptions covered</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- VACANCIES LIST -->
+  <section class="vac-list">
+    <div class="vlist-head">
+      <div class="vlist-h">OPEN POSITIONS</div>
+      <span class="vlist-count">[ 1 POSITION OPEN ]</span>
+    </div>
+
+    <div class="vac-row" onclick="showVac('v1')">
+      <div class="vr-num">01</div>
+      <div class="vr-body">
+        <div class="vr-name">SENIOR BACKEND ENGINEER</div>
+        <div class="vr-tags">
+          <span class="tag">Node.js / TypeScript</span>
+          <span class="tag">Go</span>
+          <span class="tag">Kafka</span>
+          <span class="tag">Temporal</span>
+          <span class="tag">PostgreSQL</span>
+          <span class="tag">ClickHouse</span>
+          <span class="tag">Удалёнка · 9–18 CET</span>
+        </div>
+      </div>
+      <div class="vr-arrow">→</div>
+    </div>
+  </section>
+
+  <footer>
+    <span class="fl">DAMNSAFE SYSTEMS</span>
+    <span class="fr">© 2026 DS Systems, Ltd · Limassol, Cyprus</span>
+  </footer>
+</div>
+
+<!-- ════════════════ VACANCY: SENIOR BACKEND ════════════════ -->
+<div class="page" id="page-v1">
+
+  <div class="vp-top">
+    <div class="vp-kicker">01 / Backend · B2B · Fintech · Anti-fraud</div>
+    <h1 class="vp-h1">SENIOR<br>BACKEND<br>ENGINEER</h1>
+    <div class="vp-meta">
+      <span class="tag">Node.js / TypeScript</span>
+      <span class="tag">Go</span>
+      <span class="tag">Kafka</span>
+      <span class="tag">RabbitMQ</span>
+      <span class="tag">Temporal</span>
+      <span class="tag">PostgreSQL</span>
+      <span class="tag">ClickHouse</span>
+      <span class="tag">Redis</span>
+      <span class="tag">Kubernetes</span>
+      <span class="tag">9–18 CET</span>
+    </div>
+  </div>
+
+  <!-- BENEFITS — lavender strip -->
+  <div class="benefits">
+    <div class="benefits-grid">
+      <div>
+        <div class="benefit-num">28</div>
+        <div class="benefit-title">ОПЛАЧИВАЕМЫХ ОТПУСКНЫХ ДНЕЙ</div>
+        <div class="benefit-desc">Полный оплачиваемый отпуск 28 дней в году</div>
+      </div>
+      <div>
+        <div class="benefit-num">5</div>
+        <div class="benefit-title">DAY-OFF</div>
+        <div class="benefit-desc">Дополнительные дни на личные дела</div>
+      </div>
+      <div>
+        <div class="benefit-num">100%</div>
+        <div class="benefit-title">УДАЛЁНКА</div>
+        <div class="benefit-desc">Полностью удалённый формат, 9–18 CET</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TWO-COL CONTENT -->
+  <div class="vp-grid">
+    <div class="vp-col">
+
+      <div class="vp-block">
+        <div class="vp-block-title">// О КОМПАНИИ</div>
+        <p class="vp-text">DS Systems — динамично развивающаяся технологическая компания, специализирующаяся на разработке масштабируемых, высоконадёжных цифровых решений для бизнеса и финансовых платформ.</p>
+      </div>
+
+      <div class="vp-block">
+        <div class="vp-block-title">// О ПРОЕКТЕ</div>
+        <p class="vp-text">Высоконагруженная финтех-платформа, обеспечивающая безопасность транзакций в реальном времени. Rule-based скоринг, асинхронный мониторинг, сложная модель данных и AI/ML-компоненты для детекции аномалий.</p>
+      </div>
+
+      <div class="vp-block">
+        <div class="vp-block-title">// СТЕК</div>
+        <div class="stack-row">
+          <span class="tag">Node.js</span><span class="tag">TypeScript</span>
+          <span class="tag">NestJS</span><span class="tag">Go</span>
+          <span class="tag">Python</span><span class="tag">Kafka</span>
+          <span class="tag">RabbitMQ</span><span class="tag">PostgreSQL</span>
+          <span class="tag">ClickHouse</span><span class="tag">Redis</span>
+          <span class="tag">Temporal</span><span class="tag">Kubernetes</span>
+          <span class="tag">Docker</span>
+        </div>
+      </div>
+
+      <div class="vp-block">
+        <div class="vp-block-title">// ЗАДАЧИ</div>
+        <ul class="vp-list">
+          <li>Проектирование и разработка сервисов на <strong>Node.js / Go</strong>, оптимизация производительности</li>
+          <li>Развитие <strong>rule-based скоринга</strong>: новые правила, оптимизация запросов, минимизация задержек</li>
+          <li>Долгоживущие воркфлоу на <strong>Temporal</strong>: мерджи профилей, каскадные проверки, идемпотентные ретраи</li>
+          <li>Глубокая работа с <strong>брокерами сообщений</strong>: гарантированная доставка, дубликаты, out-of-order</li>
+          <li>Схемы данных и запросы для <strong>PostgreSQL и ClickHouse</strong></li>
+          <li>Интеграция <strong>ML/AI-компонентов</strong>: контракты, нагрузка, фолбэки</li>
+          <li>Развитие <strong>agentic-инфраструктуры</strong> команды</li>
+        </ul>
+      </div>
+
+    </div>
+
+    <div class="vp-col">
+
+      <div class="vp-block">
+        <div class="vp-block-title">// МЫ ОЖИДАЕМ</div>
+        <ul class="vp-list">
+          <li><strong>5+ лет</strong> коммерческой разработки бэкенда</li>
+          <li>Опыт проектирования <strong>высоконагруженных распределённых систем</strong> с нуля</li>
+          <li>Глубокое понимание <strong>брокеров, БД и кэшей</strong> под капотом</li>
+          <li>Сильный опыт с <strong>Node.js/TypeScript или Go</strong> + готовность работать со вторым</li>
+          <li>Понимание <strong>саг, идемпотентных операций и долгоживущих воркфлоу</strong></li>
+          <li>Уверенный опыт с <strong>ClickHouse</strong>, разница между движками MergeTree</li>
+          <li><strong>Redis</strong> в нетривиальных сценариях: распределённые локи, pub/sub</li>
+          <li><strong>Kubernetes</strong> на уровне уверенного пользователя</li>
+          <li><strong>Agentic-мышление</strong>, опыт применения AI в автоматизации работы</li>
+        </ul>
+      </div>
+
+      <div class="vp-block">
+        <div class="vp-block-title">// БУДЕТ ПЛЮСОМ</div>
+        <ul class="vp-list">
+          <li>Опыт с <strong>Temporal</strong> или близкими оркестраторами</li>
+          <li>Коммерческий опыт в <strong>антифрод-системах или платёжных системах</strong></li>
+          <li>Опыт с <strong>потоковой обработкой данных</strong>, event-driven архитектура</li>
+          <li>Опыт работы с <strong>ML-инфраструктурой</strong> и интеграцией моделей в продакшн</li>
+        </ul>
+      </div>
+
+      <div class="vp-block">
+        <div class="vp-block-title">// МЫ ПРЕДЛАГАЕМ</div>
+        <ul class="vp-list">
+          <li>Работу в <strong>международной FinTech компании</strong></li>
+          <li>Высокотехнологичный продукт с <strong>реальными бизнес-метриками</strong></li>
+          <li>Прямое взаимодействие с командой, <strong>влияние на качество продукта</strong></li>
+          <li>Полностью удалённый формат <strong>9–18 CET</strong></li>
+          <li>Оплачиваемый отпуск <strong>28 дней</strong> в году</li>
+          <li>Подписки на <strong>OpenAI, Anthropic, Gemini</strong> за счёт компании</li>
+          <li><strong>Обучение</strong> за счёт компании</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- APPLY (ELECTRIC BLUE) -->
+  <div class="apply-wrap">
+    <div class="frame f-blue">
+      <span class="pin tl"></span><span class="pin tr"></span>
+      <span class="pin bl"></span><span class="pin br"></span>
+      <span class="line-l"></span><span class="line-r"></span>
+      <span class="line-t"></span><span class="line-b"></span>
+      <div class="apply-content">
+        <div class="apply-kicker">// ОТКЛИК НА ВАКАНСИЮ</div>
+        <p class="apply-sub" style="font-size: 18px; opacity: 0.95; margin-bottom: 2.5rem; max-width: 540px; line-height: 1.6;">Заполните анкету — мы обязательно дадим обратную связь в Telegram</p>
+        <a class="apply-btn" href="https://tally.so/r/RG89Dd" target="_blank">ОТПРАВИТЬ ОТКЛИК</a>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <span class="fl">DAMNSAFE SYSTEMS</span>
+    <span class="fr">© 2026 DS Systems, Ltd · Limassol, Cyprus</span>
+  </footer>
+</div>
+
+<script>
+function showHome(){
+  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active')});
+  document.getElementById('page-home').classList.add('active');
+  document.getElementById('backBtn').classList.remove('vis');
+  window.scrollTo(0,0);
+}
+function showVac(id){
+  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active')});
+  document.getElementById('page-'+id).classList.add('active');
+  document.getElementById('backBtn').classList.add('vis');
+  window.scrollTo(0,0);
+}
+</script>
+</body>
+</html>
